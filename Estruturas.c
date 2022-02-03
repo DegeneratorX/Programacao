@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+//Teste
+
 struct CasaNo{
     struct CasaNo *cima;
     struct CasaNo *baixo;
