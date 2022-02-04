@@ -1,11 +1,14 @@
-#include"Estruturas.c"
+#include"EstruturasHumano.c"
 
 int main(){
 
-struct CasaNo *no;
+CasaNo *no;
+Tabuleiro *tabuleiro;
 char navio = '@';
 AlocaCasaNo(&no, navio);
 
-PrintaCasaNo(no);
+CriarTabuleiroVazio(&tabuleiro);
+
+
 
 }
