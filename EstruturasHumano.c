@@ -1,74 +1,321 @@
-#include<stdio.h>
-#include<stdlib.h>
-
-//Teste
-
-typedef struct CasaNo{
-    struct CasaNo *cima;
-    struct CasaNo *baixo;
-    struct CasaNo *esq;
-    struct CasaNo *dir;
-    char valor;
-}CasaNo;
-
-typedef struct Tabuleiro {
-    struct CasaNo *inicio; //Ponto inicial do tabuleiro 1-A
-    struct CasaNo *ultimoVertical;
-    struct CasaNo *ultimoHorizontal;
-}Tabuleiro;
+#include <stdio.h>
+#include <stdlib.h>
 
 
-void IniciaCasaNo(CasaNo **casaNo , char tipoNavio){ //Aponta tudo pra nulo e atribui um valor pro nó inicial
-    (*casaNo)->baixo = NULL;
-    (*casaNo)->cima = NULL;
-    (*casaNo)->esq = NULL;
-    (*casaNo)->dir = NULL;
-    (*casaNo)->valor = tipoNavio;
+typedef struct _nodeTabuleiro{
+    struct _nodeTabuleiro *cima;
+    struct _nodeTabuleiro *baixo;
+    struct _nodeTabuleiro *esq;
+    struct _nodeTabuleiro *dir;
+    int posicao;
+    char embarcacao[2];
+} NodeTabuleiro;
+
+
+
+void l_inicTabuleiro(NodeTabuleiro **l){
+    (*l) = NULL;
 }
 
-void AlocaCasaNo(CasaNo **casaNo, char tipoNavio){ //Aloca espaço da memória pra Casa inicial
-    *casaNo = (CasaNo*)malloc(sizeof(CasaNo));
-    IniciaCasaNo(&(*casaNo), tipoNavio);
+void i_inserirTabuleiroParaBaixo(NodeTabuleiro **l, int posicaoN){
+    NodeTabuleiro *novo;
+
+    novo = (NodeTabuleiro*)malloc(sizeof(NodeTabuleiro));
+
+    novo->posicao = posicaoN;
+    stpcpy(novo->embarcacao,"@");
+
+    novo->baixo = *l;
+    *l = novo;
+
+
+
 }
 
-void PrintaCasaNo(CasaNo **casaNo){ //Printa nó
-    printf("Valor da casa: %c", (*casaNo)->valor);
-}
 
-void IniciaTabuleiro(Tabuleiro **tabuleiro){ //Inicia um tabuleiro 1x1 e declara o ultimo hor e vert como sendo o próprio nó criado
-    CasaNo *no;
-    AlocaCasaNo(&no, ' ');
 
-    (*tabuleiro)->inicio = no;
-    (*tabuleiro)->ultimoHorizontal = no;
-    (*tabuleiro)->ultimoVertical = no;
-}
+void apontarParaCimaNorPar (NodeTabuleiro *le) {
 
-void CriarTabuleiroVazio(Tabuleiro **tabuleiro){ //Criar uma lista de 4 direções duplamente encadeada
-    //CasaNo *aux = (CasaNo*)malloc(sizeof(CasaNo));
-    //aux = tabuleiro->inicio;
-    
-    for(int i = 0;i<12;i++){ //percorrer horizontal
-        printf("teste\n");
-        for(int j = 0; j<12; j++){ //percorrer na vertical
-           
-            CasaNo *novoNo; //criar um no temporario pra percorrer vertical
-            //novoNo = (CasaNo*) malloc(sizeof(CasaNo));
-            
-            AlocaCasaNo(&novoNo, ' ');  //aloca na memoria
-            printf("teste2\n");
-            (*tabuleiro)->ultimoVertical->baixo = novoNo; //aponta pra baixo um novo nó pra percorrer até o ultimo
-            
-            novoNo->cima = (*tabuleiro)->ultimoVertical; //Aponta para o antigo último
-            (*tabuleiro)->ultimoVertical = novoNo; //Definindo o último
-            printf("%d %d - ", i,j);
+
+   int anterior = 1;
+
+
+   NodeTabuleiro *novo;
+   novo = (NodeTabuleiro*)malloc(sizeof(NodeTabuleiro));
+
+
+   /*
+
+   Vai descendo a lista e os nos pares vao apontando para cima...
+
+   1
+
+   ^
+   |
+   v
+
+   2 (agora aponta para cima e para baixo)
+
+   |
+   v
+
+   3
+
+   ^
+   |
+   v
+
+   4 (agora aponta para cima e para baixo)
+
+   |
+   v
+
+   5
+
+   ...
+
+
+   */
+
+
+   NodeTabuleiro *p; // Vai indo para baixo.. (apontar apenas para os pares)
+   for (p = le; p != NULL; p = p->baixo){
+        if(anterior % 2 != 0){
+            novo->cima = p;
+            anterior++;
+        } else {
+            le = novo;
+            anterior++;
         }
-        CasaNo *novoNo2;
-        // novoNo2 = (CasaNo*) malloc(sizeof(CasaNo));
-        AlocaCasaNo(&novoNo2, ' ');
-        (*tabuleiro)->ultimoHorizontal->dir = novoNo2;
-        novoNo2->esq = (*tabuleiro)->ultimoHorizontal;
-        (*tabuleiro)->ultimoHorizontal = novoNo2;
-        (*tabuleiro)->ultimoVertical = novoNo2; //Reinciar o ultimo Vertical, já que ele terá que percorrer uma nova coluna 
-    }
+
+   }
+
+
+
+}
+
+
+
+
+
+void apontarParaCimaNorImpar (NodeTabuleiro *le) {
+
+   int anterior = 1;
+
+
+   NodeTabuleiro *novo;
+   novo = (NodeTabuleiro*)malloc(sizeof(NodeTabuleiro));
+
+
+   /*
+
+   Vai descendo a lista e os nos impares vao apontando para cima...
+
+   NULL
+
+   ^
+   1
+
+   ^
+   |
+   v
+
+   2
+
+   ^
+   |
+   v
+
+   3
+
+   ^
+   |
+   v
+
+   4
+   ^
+   |
+   v
+
+   5
+
+   ...
+
+
+   */
+
+
+   NodeTabuleiro *p; // Vai indo para baixo..
+   for (p = le; p != NULL; p = p->baixo){
+        if(anterior % 2 == 0){
+            novo->cima = p;
+            anterior++;
+        } else {
+
+            if(anterior == 1){
+                le = NULL;
+                anterior++;
+            } else {
+                 le = novo;
+                 anterior++;
+
+
+            }
+        }
+
+   }
+
+
+
+}
+
+
+
+
+void apontarParaDireita (NodeTabuleiro *le, NodeTabuleiro *li) {
+
+
+
+   NodeTabuleiro *novo;
+   novo = (NodeTabuleiro*)malloc(sizeof(NodeTabuleiro));
+
+
+   /*
+
+   Vai descendo a lista e os nos  vao apontando para a direita...
+
+                    ^    ^
+                    |    |
+                    x -> y -> ...
+                    |    |
+                    v    v
+
+
+   */
+
+
+   NodeTabuleiro *p; // Vai indo para baixo..
+   NodeTabuleiro *q;
+   for (p = le, q = li; p != NULL; p = p->baixo, q = q->baixo){
+
+        novo->dir = q;
+        le = novo;
+
+   }
+
+
+
+}
+
+
+
+void apontarParaDireitaLinhaL (NodeTabuleiro *le) {
+
+
+
+   NodeTabuleiro *novo;
+   novo = (NodeTabuleiro*)malloc(sizeof(NodeTabuleiro));
+
+
+   /*
+
+   Vai descendo a lista e os nos  vao apontando para a direita com o valor Nulo (ultima linha)..
+
+                    ^    ^
+                    |    |
+                    x -> y -> NULL
+                    |    |
+                    v    v
+
+
+   */
+
+
+   NodeTabuleiro *p; // Vai indo para baixo..
+   NodeTabuleiro *q;
+   for (p = le; p != NULL; p = p->baixo){
+
+        novo->dir = NULL;
+        le = novo;
+
+   }
+
+
+
+}
+
+
+
+
+void apontarParaEsquerda (NodeTabuleiro *le, NodeTabuleiro *li) {
+
+
+
+   NodeTabuleiro *novo;
+   novo = (NodeTabuleiro*)malloc(sizeof(NodeTabuleiro));
+
+
+   /*
+
+   Vai descendo a lista e os nos  vao apontando para a esquerda...
+
+                    ^    ^
+                    |    |
+           ...  <-> x <->y <-> ...
+                    |    |
+                    v    v
+
+
+   */
+
+
+   NodeTabuleiro *p; // Vai indo para baixo..
+   NodeTabuleiro *q;
+   for (p = le, q = li; p != NULL; p = p->baixo, q = q->baixo){
+
+        novo->esq = p;
+        li = novo;
+
+   }
+
+
+
+}
+
+
+
+
+void apontarParaEsquerdaLinhaA (NodeTabuleiro *le) {
+
+
+
+   NodeTabuleiro *novo;
+   novo = (NodeTabuleiro*)malloc(sizeof(NodeTabuleiro));
+
+
+   /*
+
+   Vai descendo a lista e os nos  vao apontando para a esquerda com o valor Nulo (ultima linha)..
+
+                    ^     ^
+                    |     |
+           NULL <-> x <-> y <-> NULL
+                    |     |
+                    v     v
+
+
+   */
+
+
+   NodeTabuleiro *p; // Vai indo para baixo..
+   NodeTabuleiro *q;
+   for (p = le; p != NULL; p = p->baixo){
+
+        novo->esq = NULL;
+        le = novo;
+
+   }
+
+
+
 }
