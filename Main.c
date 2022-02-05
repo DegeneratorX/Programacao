@@ -1,7 +1,11 @@
-#include"EstruturasHumano.c"
+#include <stdio.h>
+#include <stdlib.h>
+#include "estruturas.c"
 
-int main()
-{
+
+
+
+int main(){
 
 
     /*
@@ -176,4 +180,3 @@ int main()
 
     return 0;
 }
-
